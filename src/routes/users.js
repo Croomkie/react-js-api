@@ -4,13 +4,11 @@ import {
     loginUser,
     registerUser,
 } from "../controllers/users.js";
-
-import nodemailer from 'nodemailer'; // Importer nodemailer
+import nodemailer from 'nodemailer';
 import mjml from 'mjml';
-import User from "../models/users.js"; // Importer mjml
+import User from "../models/users.js";
 import {Op} from "sequelize";
 
-// Fonction pour générer le template de confirmation
 const getConfirmationEmailTemplate = (firstName, confirmationLink) => {
     const mjmlTemplate = `
     <mjml>
@@ -149,7 +147,7 @@ export function usersRoutes(app) {
         user.confirmationTokenExpires = null;
         await user.save();
 
-        reply.send({message: 'Account confirmed successfully'});
+        reply.redirect('http://localhost:5173/confirmation-success');
     });
 
 
