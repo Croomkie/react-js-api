@@ -119,7 +119,7 @@ const start = async () => {
                     error
                 );
             });
-        await app.listen({ port: parseInt(process.env.PORT) || 3000, host: '0.0.0.0' });
+        await app.listen({port: parseInt(process.env.PORT) || 3000, host: '0.0.0.0'});
         console.log(
             "Serveur Fastify lancé sur " + chalk.blue("http://localhost:3000")
         );
@@ -153,7 +153,7 @@ app.io.on("connection", (socket) => {
     console.log("Nouveau joueur connecté:", socket.id);
 
     // Lorsqu'un joueur rejoint une partie
-    socket.on("joinGame", ({ gameId, user }) => {
+    socket.on("joinGame", ({gameId, user}) => {
         // Initialisation de l'état de la partie s'il n'existe pas
         if (!games[gameId]) {
             games[gameId] = {
@@ -173,49 +173,44 @@ app.io.on("connection", (socket) => {
     });
 
     // Permet de récupérer l'état actuel de la partie en cas de refresh
-    socket.on("getGameState", ({ gameId }) => {
-        const state = games[gameId] || { players: [], quiz: null, scores: {} };
+    socket.on("getGameState", ({gameId}) => {
+        const state = games[gameId] || {players: [], quiz: null, scores: {}};
         socket.emit("gameState", state);
     });
 
-    socket.on("startQuiz", async ({ gameId, userId }) => {
+    // Lancement du quiz
+    socket.on("startQuiz", async ({gameId}) => {
         try {
-            console.log("startQuiz demandé pour gameId:", gameId, "par userId:", userId);
             const quizData = await startQuizGame(gameId);
-            console.log("Données du quiz retournées:", quizData);
             if (quizData.error) {
-                socket.emit("quizError", { error: quizData.error });
-                return;
-            }
-            // Vérifier que la partie existe et que le demandeur est le créateur
-            if (!games[gameId] || games[gameId].creator !== userId) {
-                socket.emit("quizError", { error: "Seul le créateur peut lancer le quiz." });
+                socket.emit("quizError", {error: quizData.error});
                 return;
             }
             // Stocker l'état du quiz dans la partie
             games[gameId].quiz = {
                 topic: quizData.topic,
                 questions: quizData.questions,
-                currentQuestionIndex: 0,
+                currentQuestionIndex: 0
             };
             // Réinitialiser les scores
             games[gameId].scores = {};
             // Envoyer la première question et le sujet à tous les clients dans la room
             const firstQuestion = quizData.questions[0];
-            app.io.to(gameId).emit("quizStarted", { topic: quizData.topic, question: firstQuestion });
+            console.log("Première question:", firstQuestion);
+            console.log("Sujet:", quizData.topic);
+            app.io.to(gameId).emit("quizStarted", {topic: quizData.topic, question: firstQuestion});
         } catch (err) {
             console.error("Erreur lors du démarrage du quiz :", err);
-            socket.emit("quizError", { error: "Erreur lors du démarrage du quiz" });
+            socket.emit("quizError", {error: "Erreur lors du démarrage du quiz"});
         }
     });
 
-
     // Traitement de la réponse d'un joueur
-    socket.on("submitAnswer", ({ gameId, answer, userId }) => {
+    socket.on("submitAnswer", ({gameId, answer, userId}) => {
         const game = games[gameId];
         if (!game || !game.quiz) return; // Aucun quiz en cours
 
-        const { questions, currentQuestionIndex } = game.quiz;
+        const {questions, currentQuestionIndex} = game.quiz;
         const currentQuestion = questions[currentQuestionIndex];
         const isCorrect = answer === currentQuestion.correctAnswer;
 
@@ -226,13 +221,13 @@ app.io.on("connection", (socket) => {
         }
 
         // Notifier tous les joueurs avec les scores mis à jour
-        app.io.to(gameId).emit("answerResult", { scores: game.scores });
+        app.io.to(gameId).emit("answerResult", {scores: game.scores});
 
         // Vérifier s'il reste des questions
         if (currentQuestionIndex + 1 < questions.length) {
             game.quiz.currentQuestionIndex++;
             const nextQuestion = questions[game.quiz.currentQuestionIndex];
-            app.io.to(gameId).emit("nextQuestion", { question: nextQuestion });
+            app.io.to(gameId).emit("nextQuestion", {question: nextQuestion});
         } else {
             // Fin du quiz : déterminer le gagnant
             let winnerId = null;
@@ -260,7 +255,7 @@ app.io.on("connection", (socket) => {
                 .catch((err) => console.error("Erreur lors de la mise à jour de la partie", err));
 
             // Envoyer l'événement de fin de quiz aux joueurs
-            app.io.to(gameId).emit("quizEnded", { scores: game.scores });
+            app.io.to(gameId).emit("quizEnded", {scores: game.scores});
         }
     });
 
@@ -269,7 +264,6 @@ app.io.on("connection", (socket) => {
         // Vous pouvez ajouter ici la logique pour retirer le joueur de toutes les parties, etc.
     });
 });
-
 
 
 start();
