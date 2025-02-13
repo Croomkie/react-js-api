@@ -167,6 +167,7 @@ app.io.on("connection", (socket) => {
             games[gameId].players.push(user);
         }
         socket.join(gameId);
+        console.log(`L'utilisateur est t'il undefine ? ${user.username} ça me rend fou`);
         console.log(`${user.username} a rejoint la partie ${gameId}`);
         // Diffuse la liste actualisée des joueurs à tous les clients de la room
         app.io.to(gameId).emit("updatePlayers", games[gameId].players);
