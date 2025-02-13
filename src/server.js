@@ -142,7 +142,6 @@ const start = async () => {
 await app.register(socketioServer, {
     cors: {
         origin: "*",
-        methods: ["GET", "POST"],
         credentials: true
     }
 });
