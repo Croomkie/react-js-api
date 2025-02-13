@@ -12,6 +12,6 @@ export const sequelize = new Sequelize({
 	database: process.env.DB_NAME || "express_db",
 	user: process.env.DB_USER || "root",
 	password: process.env.DB_PASSWORD || "KlsiVoKp?9jJ",
-	host: process.env.DB_HOST || "localhost",
+	host: process.env.DB_HOST || "35.181.93.121",
 	port: parseInt(process.env.DB_PORT) || 3306,
 });
