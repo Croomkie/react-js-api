@@ -9,9 +9,9 @@ dotenv.config();
  */
 export const sequelize = new Sequelize({
 	dialect: MySqlDialect,
-	database: process.env.DB_NAME || "react-js",
-	user: process.env.DB_USER || "usersio",
-	password: process.env.DB_PASSWORD || "sio",
+	database: process.env.DB_NAME || "express_db",
+	user: process.env.DB_USER || "root",
+	password: process.env.DB_PASSWORD || "KlsiVoKp?9jJ",
 	host: process.env.DB_HOST || "localhost",
 	port: parseInt(process.env.DB_PORT) || 3306,
 });
