@@ -147,7 +147,7 @@ export function usersRoutes(app) {
         user.confirmationTokenExpires = null;
         await user.save();
 
-        reply.redirect('http://localhost:5173/confirmation-success');
+        reply.redirect('https://react-js-front.vercel.app/confirmation-success');
     });
 
 
