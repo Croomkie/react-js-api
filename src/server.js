@@ -178,19 +178,25 @@ app.io.on("connection", (socket) => {
         socket.emit("gameState", state);
     });
 
-    // Lancement du quiz
-    socket.on("startQuiz", async ({ gameId }) => {
+    socket.on("startQuiz", async ({ gameId, userId }) => {
         try {
+            console.log("startQuiz demandé pour gameId:", gameId, "par userId:", userId);
             const quizData = await startQuizGame(gameId);
+            console.log("Données du quiz retournées:", quizData);
             if (quizData.error) {
                 socket.emit("quizError", { error: quizData.error });
+                return;
+            }
+            // Vérifier que la partie existe et que le demandeur est le créateur
+            if (!games[gameId] || games[gameId].creator !== userId) {
+                socket.emit("quizError", { error: "Seul le créateur peut lancer le quiz." });
                 return;
             }
             // Stocker l'état du quiz dans la partie
             games[gameId].quiz = {
                 topic: quizData.topic,
                 questions: quizData.questions,
-                currentQuestionIndex: 0
+                currentQuestionIndex: 0,
             };
             // Réinitialiser les scores
             games[gameId].scores = {};
@@ -202,6 +208,7 @@ app.io.on("connection", (socket) => {
             socket.emit("quizError", { error: "Erreur lors du démarrage du quiz" });
         }
     });
+
 
     // Traitement de la réponse d'un joueur
     socket.on("submitAnswer", ({ gameId, answer, userId }) => {
