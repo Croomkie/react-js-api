@@ -96,7 +96,7 @@ export function usersRoutes(app) {
         const user = await registerUser(request.body, app.bcrypt);
 
         if (user) {
-            const confirmationLink = `https://react-js-front.vercel.app/confirm?token=${user.confirmationToken}`;
+            const confirmationLink = `https://react-js-api.onrender.com/confirm?token=${user.confirmationToken}`;
 
             const emailHtml = getConfirmationEmailTemplate(user.firstName, confirmationLink);
 
