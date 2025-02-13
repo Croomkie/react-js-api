@@ -144,19 +144,28 @@ await app.register(socketioServer, {
     }
 });
 
+const games = {};
+
 app.io.on("connection", (socket) => {
-    console.log(`Joueur connecté : ${socket.id}`);
+    console.log("Nouveau joueur connecté:", socket.id);
 
-    socket.on("join", (gameId) => {
-        console.log(`Joueur ${socket.id} veut rejoindre la partie ${gameId}`);
-        // Joindre la room
+    socket.on("joinGame", ({ gameId, user }) => {
+        if (!games[gameId]) {
+            games[gameId] = [];
+        }
+
+        if (!games[gameId].some(player => player.id === user.id)) {
+            games[gameId].push(user);
+        }
+
         socket.join(gameId);
+        console.log(`${user.username} a rejoint la partie ${gameId}`);
 
-        console.log(`Joueur ${socket.id} a rejoint la partie ${gameId}`);
+        app.io.to(gameId).emit("updatePlayers", games[gameId]);
     });
 
     socket.on("disconnect", () => {
-        console.log(`Joueur déconnecté : ${socket.id}`);
+        console.log("Client déconnecté:", socket.id);
     });
 });
 
