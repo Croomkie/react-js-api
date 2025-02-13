@@ -36,7 +36,7 @@ await app
         saltWorkFactor: 12,
     })
     .register(cors, {
-        origin: "*",
+        origin: "https://react-js-front.vercel.app",
     })
     .register(fastifySwagger, {
         openapi: {
@@ -141,7 +141,7 @@ const start = async () => {
 
 await app.register(socketioServer, {
     cors: {
-        origin: "*",
+        origin: "https://react-js-front.vercel.app",
         credentials: true
     }
 });
